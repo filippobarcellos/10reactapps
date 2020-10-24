@@ -1,24 +1,19 @@
 import React from "react";
+import { BrowserRouter } from "react-router-dom";
+import GlobalStyle from "./styles/global";
+// import { CartProvider } from "./context/use-cart";
+
+import Routes from "./routes";
 import Header from "./components/Header";
-import Product from "./components/Product";
-import products from "./products";
-import "./App.css";
-import { CartProvider } from "./context/use-cart";
 
-export default function App() {
+const App = () => {
   return (
-    <CartProvider>
-      <div className="app">
-        <Header />
-
-        <main>
-          <div className="products-list">
-            {products.map((product, index) => (
-              <Product key={index} product={product} />
-            ))}
-          </div>
-        </main>
-      </div>
-    </CartProvider>
+    <BrowserRouter>
+      <Header />
+      <Routes />
+      <GlobalStyle />
+    </BrowserRouter>
   );
-}
+};
+
+export default App;

@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { usePlayer } from "../../context/usePlayer";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
   faPlay,
@@ -9,8 +10,14 @@ import {
 
 import { Container, TimeControl, PlayerControl } from "./styles";
 
-function Player({ currentSong, audioRef }) {
-  const [isPlaying, setIsPlaying] = useState(false);
+function Player({ audioRef }) {
+  const {
+    songs,
+    currentSong,
+    setCurrentSong,
+    isPlaying,
+    setIsPlaying,
+  } = usePlayer();
   const [songInfo, setSongInfo] = useState({
     currentTime: 0,
     duration: 0,
@@ -21,6 +28,7 @@ function Player({ currentSong, audioRef }) {
       Math.floor(time / 60) + ":" + ("0" + Math.floor(time % 60)).slice(-2)
     );
   };
+
   const playSongHandler = () => {
     if (isPlaying) {
       audioRef.current.pause();
@@ -50,13 +58,38 @@ function Player({ currentSong, audioRef }) {
     });
   };
 
+  const skipTrackHandler = (direction) => {
+    const currentIndex = songs.findIndex((s) => s.id === currentSong.id);
+
+    if (direction === "forward") {
+      setCurrentSong(songs[(currentIndex + 1) % songs.length]);
+    }
+
+    if (direction === "back") {
+      if ((currentIndex - 1) % songs.length === -1) {
+        setCurrentSong(songs[songs.length - 1]);
+        return;
+      }
+      setCurrentSong(songs[(currentIndex - 1) % songs.length]);
+    }
+
+    if (isPlaying) {
+      const playPromise = audioRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise.then((audio) => {
+          audioRef.current.play();
+        });
+      }
+    }
+  };
+
   return (
     <Container>
       <TimeControl>
         <span>{formatTime(songInfo.currentTime)}</span>
         <input
           min={0}
-          max={songInfo.duration}
+          max={songInfo.duration || 0}
           value={songInfo.currentTime}
           type="range"
           onChange={dragHandler}
@@ -65,7 +98,7 @@ function Player({ currentSong, audioRef }) {
       </TimeControl>
 
       <PlayerControl>
-        <button>
+        <button onClick={() => skipTrackHandler("back")}>
           <FontAwesomeIcon icon={faAngleLeft} size="2x" />
         </button>
         <button>
@@ -75,7 +108,7 @@ function Player({ currentSong, audioRef }) {
             onClick={playSongHandler}
           />
         </button>
-        <button>
+        <button onClick={() => skipTrackHandler("forward")}>
           <FontAwesomeIcon icon={faAngleRight} size="2x" />
         </button>
         <audio

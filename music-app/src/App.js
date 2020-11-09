@@ -1,27 +1,25 @@
 import React, { useState, useRef } from "react";
-import data from "./data";
+import { PlayerProvider } from "./context/usePlayer";
 import { GlobalStyle } from "./styles";
 
 import Player from "./components/Player";
 import SongInfo from "./components/SongInfo";
 import Sidebar from "./components/Sidebar";
+import Menu from "./components/Menu";
 
 function App() {
-  const [songs, setSongs] = useState(data());
-  const [currentSong, setCurrentSong] = useState(songs[0]);
+  const [isPlaying, setIsPlaying] = useState(false);
+
   const audioRef = useRef(null);
 
   return (
-    <div className="App">
+    <PlayerProvider>
       <GlobalStyle />
-      <SongInfo currentSong={currentSong} />
-      <Player audioRef={audioRef} currentSong={currentSong} />
-      <Sidebar
-        audioRef={audioRef}
-        songs={songs}
-        setCurrentSong={setCurrentSong}
-      />
-    </div>
+      <Menu />
+      <SongInfo />
+      <Player audioRef={audioRef} />
+      <Sidebar audioRef={audioRef} />
+    </PlayerProvider>
   );
 }
 

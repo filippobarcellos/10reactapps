@@ -1,8 +1,11 @@
 import React from "react";
+import { usePlayer } from "../../context/usePlayer";
 
 import { Container } from "./styles";
 
-function SongInfo({ currentSong }) {
+function SongInfo() {
+  const { currentSong } = usePlayer();
+
   return (
     <Container>
       <img src={currentSong.cover} alt={currentSong.name} />
